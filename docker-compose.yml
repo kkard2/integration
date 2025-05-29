@@ -13,7 +13,6 @@ services:
       - "3306:3306"
     volumes:
       - integration-data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
 volumes:
   integration-data:
