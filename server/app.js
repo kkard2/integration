@@ -1,6 +1,6 @@
 import express from 'express'
 import sequelize from "./db.js"
-import User from './models/User.js'
+import { User, Role, Summary, Comment } from './models/Models.js' // you must import models before sync
 
 const PORT = 3000
 const app = express()
