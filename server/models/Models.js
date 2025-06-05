@@ -13,6 +13,12 @@ const User = sequelize.define('User', {
     }
 })
 
+const generateAuthToken = (user) => {
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_KEY,
+        { expiresIn: "7d" })
+    return token
+}
+
 const Role = sequelize.define('Role', {
     name: {
         type: DataTypes.STRING,
@@ -68,4 +74,4 @@ Comment.belongsTo(Summary, {
     }
 })
 
-export { User, Role, Summary, Comment }
+export { User, Role, Summary, Comment, generateAuthToken }
