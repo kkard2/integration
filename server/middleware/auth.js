@@ -1,5 +1,5 @@
-import { verify } from "jsonwebtoken"
-import { findById } from "../models/User"
+import verify from "jsonwebtoken"
+import { getUserById } from "../models/Models.js"
 
 const auth = async (req, res, next) => {
     try {
@@ -14,7 +14,7 @@ const auth = async (req, res, next) => {
 
         const token = authHeader.substring("Bearer ".length)
         const decoded = verify(token, process.env.JWT_KEY)
-        const user = await findById(decoded._id)
+        const user = await getUserById(decoded.id)
 
         if (!user) {
             return res.status(401).json({
