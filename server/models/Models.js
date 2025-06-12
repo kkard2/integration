@@ -20,6 +20,16 @@ const generateAuthToken = (user) => {
     return token
 }
 
+const getUserById = async (userId) => {
+    const user = await User.findByPk(userId)
+
+    if (!user) {
+        return null
+    }
+
+    return user
+}
+
 const Role = sequelize.define('Role', {
     name: {
         type: DataTypes.STRING,
@@ -75,4 +85,4 @@ Comment.belongsTo(Summary, {
     }
 })
 
-export { User, Role, Summary, Comment, generateAuthToken }
+export { User, Role, Summary, Comment, generateAuthToken, getUserById }
