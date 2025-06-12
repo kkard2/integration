@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import '../App.css';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { DEFAULT_URL } from '../constants';
 
 export default function RegisterPage() {
@@ -58,7 +58,7 @@ export default function RegisterPage() {
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="password">Password</label>
+                        <label htmlFor="password">Hasło</label>
                         <input
                             type="password"
                             id="password"
@@ -67,7 +67,7 @@ export default function RegisterPage() {
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="confirmPassword">Confirm Password</label>
+                        <label htmlFor="confirmPassword">Potwierdź hasło</label>
                         <input
                             type="password"
                             id="confirmPassword"
@@ -76,6 +76,7 @@ export default function RegisterPage() {
                         />
                     </div>
                     <button type="submit" className="submit-button">Register</button>
+                    <Link to="/">Masz już konto?</Link>
                 </form>
             </div>
         </>

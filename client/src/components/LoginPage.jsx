@@ -1,13 +1,16 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import '../App.css'
-import { useNavigate } from 'react-router-dom';
-import {DEFAULT_URL} from '../constants'
+import { Link, useNavigate } from 'react-router-dom';
+import { DEFAULT_URL } from '../constants'
+import { useAuth } from '../AuthContext';
 
 export default function LoginPage() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState("")
     const navigate = useNavigate();
+    const auth = useAuth();
+
     async function submit(e) {
         e.preventDefault();
         const response = await fetch(`${DEFAULT_URL}/api/auth/login`, {
@@ -20,9 +23,10 @@ export default function LoginPage() {
                 password,
             }),
         });
-        if(response.ok) {
+        if (response.ok) {
             const data = await response.json()
-            localStorage.setItem("token", data.token)
+            localStorage.setItem("token", data.data.token)
+            auth.login({token: data.data.token})
             navigate('/home')
         } else {
             try {
@@ -50,7 +54,7 @@ export default function LoginPage() {
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="password">Password</label>
+                        <label htmlFor="password">Hasło</label>
                         <input
                             type="password"
                             id="password"
@@ -59,6 +63,7 @@ export default function LoginPage() {
                         />
                     </div>
                     <button type="submit" className="submit-button">Submit</button>
+                    <Link to="/register">Załóż konto</Link>
                 </form>
             </div>
         </>
