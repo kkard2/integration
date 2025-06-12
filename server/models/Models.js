@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize"
 import sequelize from "../db.js"
+import jwt from "jsonwebtoken"
 
 const User = sequelize.define('User', {
     username: {

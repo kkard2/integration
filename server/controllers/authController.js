@@ -3,6 +3,7 @@ import { User, generateAuthToken } from "../models/Models.js";
 export const register = async (req, res) => {
     try {
         const { username, password } = req.body;
+        console.log(username);
 
         const existingUser = await User.findOne({ where: { username: username } });
         if (existingUser) {
@@ -39,7 +40,7 @@ export const register = async (req, res) => {
             })
         }
 
-        console.error("Błąd rejestracji: ", error)
+        console.error("Regiser error: ", error)
         res.status(500).json({
             success: false,
             message: "Internal server error",
@@ -51,7 +52,6 @@ export const login = async (req, res) => {
     try {
         const { username, password } = req.body;
 
-        // Walidacja danych wejściowych
         if (!username || !password) {
             return res.status(400).json({
                 success: false,
@@ -59,7 +59,7 @@ export const login = async (req, res) => {
             })
         }
 
-        const user = await findOne({ username });
+        const user = await User.findOne({ where: { username: username } });
         if (!user) {
             return res.status(401).json({
                 success: false,
@@ -67,7 +67,7 @@ export const login = async (req, res) => {
             })
         }
 
-        const isPasswordValid = await user.comparePassword(password);
+        const isPasswordValid = await User.findOne({ where: {username: username, password: password}});
         if (!isPasswordValid) {
             return res.status(401).json({
                 success: false,
