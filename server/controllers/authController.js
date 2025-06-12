@@ -60,6 +60,7 @@ export const login = async (req, res) => {
         }
 
         const user = await User.findOne({ where: { username: username } });
+        console.log(user)
         if (!user) {
             return res.status(401).json({
                 success: false,

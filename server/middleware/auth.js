@@ -1,4 +1,4 @@
-import verify from "jsonwebtoken"
+import jwt from "jsonwebtoken"
 import { getUserById } from "../models/Models.js"
 
 const auth = async (req, res, next) => {
@@ -13,8 +13,9 @@ const auth = async (req, res, next) => {
         }
 
         const token = authHeader.substring("Bearer ".length)
-        const decoded = verify(token, process.env.JWT_KEY)
+        const decoded = jwt.verify(token, process.env.JWT_KEY)
         const user = await getUserById(decoded.id)
+        console.log(token, decoded, user)
 
         if (!user) {
             return res.status(401).json({

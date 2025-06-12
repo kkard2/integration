@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import sequelize from "./db.js"
-import { User, Role, Summary, Comment } from './models/Models.js' // you must import models before sync
+import { User, Role, Summary, Comment, Country } from './models/Models.js' // you must import models before sync
 import authRoutes from "./routes/auth.js"
 import dataRoutes from "./routes/alcohol.js"
 

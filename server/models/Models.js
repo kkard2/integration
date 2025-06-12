@@ -15,7 +15,7 @@ const User = sequelize.define('User', {
 })
 
 const generateAuthToken = (user) => {
-    const token = jwt.sign({ _id: user._id }, process.env.JWT_KEY,
+    const token = jwt.sign({ id: user.id }, process.env.JWT_KEY,
         { expiresIn: "7d" })
     return token
 }
@@ -60,6 +60,17 @@ const Comment = sequelize.define('Comment', {
     }
 })
 
+const Country = sequelize.define('Country', {
+    code: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    name: {
+        type: DataTypes.STRING,
+        allowNull: false
+    }
+})
+
 
 Role.hasMany(User)
 
@@ -85,4 +96,4 @@ Comment.belongsTo(Summary, {
     }
 })
 
-export { User, Role, Summary, Comment, generateAuthToken, getUserById }
+export { User, Role, Summary, Comment, Country, generateAuthToken, getUserById }

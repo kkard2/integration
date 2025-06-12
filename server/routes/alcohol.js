@@ -1,10 +1,11 @@
 import { Router } from "express"
-import { getTotalConsumption } from "../controllers/alcoholController.js"
+import { getCountries, getTotalConsumption } from "../controllers/alcoholController.js"
 import auth from "../middleware/auth.js"
 
 const router = Router()
 
 
-router.get("/", auth, getTotalConsumption)
+router.get("/consumption", auth, getTotalConsumption)
+router.get("/countries", auth, getCountries)
 
 export default router
