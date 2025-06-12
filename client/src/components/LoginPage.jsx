@@ -26,7 +26,7 @@ export default function LoginPage() {
         if (response.ok) {
             const data = await response.json()
             localStorage.setItem("token", data.data.token)
-            auth.login({token: data.data.token})
+            auth.login({ token: data.data.token })
             navigate('/home')
         } else {
             try {

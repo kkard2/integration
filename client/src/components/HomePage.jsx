@@ -1,39 +1,41 @@
-
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import '../App.css'
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { DEFAULT_URL } from '../constants'
 import { useAuth } from '../AuthContext';
+import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
 
 export default function HomePage() {
     const auth = useAuth();
     const [countries, setCountries] = useState([])
-    const [country, setCountry] = useState("")
-    const [startYear, setStartYear] = useState(0)
-    const [endYear, setEndYear] = useState(0)
+    const [country, setCountry] = useState("POL")
+    const [yearBegin, setYearBegin] = useState(2000)
+    const [yearEnd, setYearEnd] = useState(2025)
     const [errors, setErrors] = useState("")
+    const [alcoholData, setAlcoholData] = useState([])
+
 
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchCountries = async ()=> {
+        const fetchCountries = async () => {
+            setErrors("")
             try {
-                const response = await fetch(`${DEFAULT_URL}/api/countries`,{
+                const response = await fetch(`${DEFAULT_URL}/api/data/countries`, {
                     method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${auth.user.token}`
                     }
                 })
                 const data = await response.json()
-                if(response.ok) {
-                    setCountries(data.data.countries)
+                if (response.ok) {
+                    setCountries(data)
                 } else {
                     setErrors(data.message || "Unknown error")
                 }
             } catch (error) {
-                // console.log(error)
-                setErrors("Fetch countries error: ", error)
+                console.log(error)
+                setErrors("Fetch countries error")
             }
         }
         fetchCountries()
@@ -41,25 +43,25 @@ export default function HomePage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        setErrors("")
 
         try {
-            const response = await fetch(`${DEFAULT_URL}/api/countries`,{
-                method: 'POST',
+            const query = new URLSearchParams({
+                country,
+                yearBegin,
+                yearEnd
+            }).toString();
+            const response = await fetch(`${DEFAULT_URL}/api/data/consumption?${query}`, {
+                method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${auth.user.token}`
                 },
-                body: JSON.stringify({
-                    country: country,
-                    startYear: startYear,
-                    endYear: endYear
-                })
             })
             const data = await response.json()
-            if(response.ok) {
-                //TODO
+            if (response.ok) {
+                setAlcoholData(data)
             } else {
-                setErrors("Fetch data error: ")
+                setErrors("Fetch data error")
             }
         } catch (error) {
             console.log("Submit error: ", error)
@@ -67,23 +69,45 @@ export default function HomePage() {
     }
 
     return (
-        <div>
-            <button onClick={auth.logout}>Logout</button>
-            <form onSubmit={handleSubmit}>
-                <label htmlFor='country'>Kraj:</label><br />
-                <select id='country' onChange={(e) => setCountry(e.target.value)}>
-                    {countries.map( (c) => {
-                        <option value={c.code}>{c.name}</option>
-                    })}
+        <div className="container">
+            <header className="header">
+                <button className="logout-button" onClick={auth.logout}>Logout</button>
+            </header>
+
+            <form className="form" onSubmit={handleSubmit}>
+                <label htmlFor='country'>Kraj:</label>
+                <select id="country" className="form-input" value={country} onChange={(e) => setCountry(e.target.value)}>
+                    <option value="" disabled>-- Wybierz kraj --</option>
+                    {countries.map((c) => (
+                        <option key={c.code} value={c.code}>
+                            {c.name}
+                        </option>
+                    ))}
                 </select>
-                <p>Zakres dat:</p>
-                <label htmlFor='startYear'>Start year:</label>
-                <input type='number' id='startYear' className='form-group' onChange={(e) => setStartYear(e.target.value)}></input><br />
-                <label htmlFor='endYear'>End year:</label>
-                <input type='number' id='endYear' className='form-group' onChange={(e) => setEndYear(e.target.value)}></input>
-                <input type="submit" value="Wyślij" className='submit-button'/>
+
+                <label htmlFor='startYear'>Rok początkowy:</label>
+                <input type='number' id='startYear' className='form-input' value={yearBegin} onChange={(e) => setYearBegin(e.target.value)} />
+
+                <label htmlFor='endYear'>Rok końcowy:</label>
+                <input type='number' id='endYear' className='form-input' value={yearEnd} onChange={(e) => setYearEnd(e.target.value)} />
+
+                <input type="submit" value="Wyślij" className='submit-button' />
             </form>
-            <div className='error'>{errors}</div>
+
+            {errors && <div className='error'>{errors}</div>}
+
+            {alcoholData.length > 0 && (
+                <div className="chart-wrapper">
+                    <LineChart width={700} height={350} data={alcoholData}>
+                        <CartesianGrid stroke="#ccc" />
+                        <XAxis dataKey="year" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Line type="monotone" dataKey="value" stroke="#2a6df4" strokeWidth={2} dot={{ r: 3 }} />
+                    </LineChart>
+                </div>
+            )}
         </div>
     )
 }
