@@ -68,6 +68,32 @@ export default function HomePage() {
         }
     }
 
+    const handleButtonClick = async () => {
+        try {
+            const response = await fetch(`${DEFAULT_URL}/api/something`, {
+                method: "POST",
+                headers:{
+                    "Authorization": `Bearer ${auth.user.token}`
+                },
+                body:
+                    JSON.stringify(
+                    {yearBegin: yearBegin,
+                    yearEnd: yearEnd,
+                    country: country})
+                }
+            )
+            const data = await response.json()
+            if(data.success) {
+                //TODO: wyswietlic feedback
+            } else {
+                setErrors(data.message)
+            }
+        } catch (error) {
+            setErrors("Save search error")
+            console.log("Save search error: ", error)
+        }
+    }
+
     return (
         <div className="container">
             <header className="header">
@@ -106,6 +132,11 @@ export default function HomePage() {
                         <Legend />
                         <Line type="monotone" dataKey="value" stroke="#2a6df4" strokeWidth={2} dot={{ r: 3 }} />
                     </LineChart>
+                </div>
+            )}
+            {alcoholData.length > 0 && (
+                <div>
+                    <button onClick={handleButtonClick} className='submit-button'>Zapisz</button>
                 </div>
             )}
         </div>
