@@ -7,7 +7,11 @@ export function AuthProvider({ children }) {
     const [user, setUser] = useState(token ? { token } : null);
 
     const login = (userData) => setUser(userData);
-    const logout = () => setUser(null);
+
+    const logout = () => {
+        localStorage.removeItem("token")
+        setUser(null)
+    };
 
     return (
         <AuthContext.Provider value={{ user, login, logout }}>

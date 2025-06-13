@@ -4,6 +4,7 @@ import sequelize from "./db.js"
 import { User, Role, Summary, Comment, Country } from './models/Models.js' // you must import models before sync
 import authRoutes from "./routes/auth.js"
 import dataRoutes from "./routes/alcohol.js"
+import summaryRoutes from "./routes/summary.js"
 
 const PORT = 3000
 const app = express()
@@ -13,7 +14,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRoutes);
-app.use("/api/data", dataRoutes)
+app.use("/api/data", dataRoutes);
+app.use("/api/summary", summaryRoutes);
 
 try {
     await sequelize.sync()
