@@ -152,9 +152,9 @@
     margin-top: 2rem;
 }
 
-.success-message {
-    background-color: #d4edda;
-    color: #155724;
+.message {
+    background-color: #3c6ec6;
+    color: #f3f3f3;
     padding: 12px 20px;
     border: 1px solid #c3e6cb;
     border-radius: 4px;

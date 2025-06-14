@@ -2,6 +2,7 @@ import Navbar from "./Navbar.jsx";
 import {useAuth} from "../AuthContext.jsx";
 import {useEffect, useState} from "react";
 import {DEFAULT_URL} from "../constants.js";
+import {Trash2} from 'lucide-react'
 import {LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line} from 'recharts';
 
 export default function Saved() {
@@ -10,6 +11,7 @@ export default function Saved() {
     const [error, setError] = useState("");
     const [expandedId, setExpandedId] = useState(null);
     const [chartData, setChartData] = useState({});
+    const [message, setMessage] = useState("");
 
     useEffect(() => {
         const fetchSavedSummaries = async () => {
@@ -33,7 +35,7 @@ export default function Saved() {
         };
 
         fetchSavedSummaries();
-    }, []);
+    }, [savedSummaries]);
 
     const fetchChartData = async (summary) => {
         const country = summary.countryCode;
@@ -75,48 +77,90 @@ export default function Saved() {
     const handleSummaryClick = async (summary) => {
         const newExpandedId = expandedId === summary.id ? null : summary.id;
         setExpandedId(newExpandedId);
-        
+
         if (newExpandedId && !chartData[summary.id]) {
             await fetchChartData(summary);
         }
     };
 
+    const handleDelete = async (id) => {
+        try {
+            const response = await fetch(`${DEFAULT_URL}/api/summary/delete/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${auth.user.token}`
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                setSavedSummaries(prevSummaries => prevSummaries.filter(summary => summary.id !== id));
+                setMessage("Pomyślnie usunięto");
+            } else {
+                setError(data.message || "Błąd podczas usuwania");
+            }
+        } catch (error) {
+            console.error("Delete error: ", error);
+            setError("Błąd podczas usuwania");
+        }
+
+        setTimeout(() => {
+            setMessage("");
+        }, 3000);
+    };
+
+
     return (
         <div>
             <Navbar/>
             <div className="container">
-                <h3>Zapisane summary:</h3>
+                <h3>Zapisane zestawienia:</h3>
                 {error && <div className="error">{error}</div>}
                 {savedSummaries.length > 0 && (savedSummaries.map((s) => (
                     <div key={s.id} className="saved-summary">
-                        <div 
-                            className="saved-summary-header" 
+                        <div
+                            className="saved-summary-header"
                             onClick={() => handleSummaryClick(s)}
-                            style={{ cursor: 'pointer' }}
+                            style={{cursor: 'pointer'}}
                         >
                             <div className="saved-summary-country">{s.countryCode}</div>
-                            <div className="saved-summary-years">{s.startYear} - {s.endYear}</div>
+                            <div>
+                                <div className="saved-summary-years">{s.startYear} - {s.endYear}</div>
+                                <button
+                                    onClick={() => handleDelete(s.id)}
+                                    className="delete-button"
+                                    title="Usuń"
+                                >
+                                    <Trash2 size={14}/>
+                                </button>
+                            </div>
                         </div>
                         {expandedId === s.id && chartData[s.id] && (
                             <div className="chart-wrapper">
-                                <LineChart width={700} height={350} data={chartData[s.id]}>
+                                <LineChart width={700} height={350} data={chartData[s.id]}
+                                           margin={{top: 5, right: 20, bottom: 25, left: 25}}>
                                     <CartesianGrid stroke="#ccc"/>
-                                    <XAxis dataKey="year"/>
-                                    <YAxis/>
-                                    <Tooltip/>
-                                    <Legend/>
-                                    <Line 
-                                        type="monotone" 
-                                        dataKey="value" 
-                                        stroke="#000000"
-                                        strokeWidth={2} 
-                                        dot={{r: 3}}
+                                    <XAxis dataKey="year" label={{
+                                        value: 'Rok',
+                                        position: 'bottom',
+                                        offset: 0
+                                    }}/>
+                                    <YAxis label={{
+                                        value: 'Spożyty alkohol w L (per capita)',
+                                        angle: -90,
+                                        dx: -20
+                                    }}
                                     />
+                                    <Tooltip/>
+                                    <Line type="monotone" dataKey="value" stroke="#2a6df4" strokeWidth={2}
+                                          dot={{r: 3}}/>
                                 </LineChart>
                             </div>
                         )}
                     </div>
                 )))}
+                {message && <div className="message">{message}</div>}
             </div>
         </div>
     );

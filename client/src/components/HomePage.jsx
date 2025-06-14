@@ -3,7 +3,7 @@ import '../App.css'
 import {useNavigate} from 'react-router-dom';
 import {DEFAULT_URL} from '../constants'
 import {useAuth} from '../AuthContext';
-import {CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis} from 'recharts';
+import {CartesianGrid, Text, Line, LineChart, Tooltip, XAxis, YAxis} from 'recharts';
 import Navbar from "./Navbar.jsx";
 
 export default function HomePage() {
@@ -14,7 +14,7 @@ export default function HomePage() {
     const [yearEnd, setYearEnd] = useState(2025)
     const [errors, setErrors] = useState("")
     const [alcoholData, setAlcoholData] = useState([])
-    const [successMessage, setSuccessMessage] = useState("")
+    const [message, setMessage] = useState("")
 
 
     const navigate = useNavigate();
@@ -87,10 +87,10 @@ export default function HomePage() {
             )
             const data = await response.json()
             if (data.success) {
-                setSuccessMessage("Zapisano pomyślnie")
+                setMessage("Zapisano pomyślnie")
             } else {
-                setSuccessMessage("")
-                setErrors(data.message)
+                setMessage(data.message || "Unknown error")
+                // setErrors(data.message)
             }
         } catch (error) {
             setErrors("Save search error")
@@ -100,7 +100,7 @@ export default function HomePage() {
 
     return (
         <div>
-            <Navbar />
+            <Navbar/>
             <div className="container">
                 <form className="form" onSubmit={handleSubmit}>
                     <label htmlFor='country'>Kraj:</label>
@@ -128,24 +128,36 @@ export default function HomePage() {
                 {errors && <div className='error'>{errors}</div>}
 
                 {alcoholData.length > 0 && (
-                    <div className="chart-wrapper">
-                        <LineChart width={700} height={350} data={alcoholData}>
-                            <CartesianGrid stroke="#ccc"/>
-                            <XAxis dataKey="year"/>
-                            <YAxis/>
-                            <Tooltip/>
-                            <Legend/>
-                            <Line type="monotone" dataKey="value" stroke="#2a6df4" strokeWidth={2} dot={{r: 3}}/>
-                        </LineChart>
+                    <div>
+                        <h3>Wykres dla {country}</h3>
+                        <div className="chart-wrapper">
+                            <LineChart width={700} height={350} data={alcoholData}
+                                       margin={{top: 5, right: 20, bottom: 25, left: 25}}>
+                                <CartesianGrid stroke="#ccc"/>
+                                <XAxis dataKey="year" label={{
+                                    value: 'Rok',
+                                    position: 'bottom',
+                                    offset: 0
+                                }}/>
+                                <YAxis label={{
+                                    value: 'Spożyty alkohol w L (per capita)',
+                                    angle: -90,
+                                    dx: -20
+                                }}
+                                />
+                                <Tooltip/>
+                                <Line type="monotone" dataKey="value" stroke="#2a6df4" strokeWidth={2} dot={{r: 3}}/>
+                            </LineChart>
+                        </div>
                     </div>
                 )}
                 {alcoholData.length > 0 && (
                     <div>
                         <button onClick={handleButtonClick} className='submit-button'>Zapisz</button>
-                        {successMessage && <div className='success-message'>{successMessage}</div>}
+                        {message && <div className='message'>{message}</div>}
                     </div>
                 )}
             </div>
-            </div>
-            )
-            }
+        </div>
+    )
+}
