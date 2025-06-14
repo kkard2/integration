@@ -1,0 +1,75 @@
+<wsdl:definitions name="EmploymentDataService"
+    targetNamespace="http://localhost/wsdl"
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://localhost/wsdl"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Types used in requests and responses -->
+    <wsdl:types>
+        <xsd:schema targetNamespace="http://localhost/wsdl">
+            <xsd:element name="GetEmploymentDataRequest">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="countryCode" type="xsd:string" />
+                        <xsd:element name="startYear" type="xsd:int" />
+                        <xsd:element name="endYear" type="xsd:int" />
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="GetEmploymentDataResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="record" minOccurs="0" maxOccurs="unbounded">
+                            <xsd:complexType>
+                                <xsd:sequence>
+                                    <xsd:element name="year" type="xsd:int" />
+                                    <xsd:element name="ratio" type="xsd:float" minOccurs="0" />
+                                </xsd:sequence>
+                            </xsd:complexType>
+                        </xsd:element>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:schema>
+    </wsdl:types>
+
+
+    <!-- Message: Request -->
+    <wsdl:message name="GetEmploymentDataRequestMessage">
+        <wsdl:part name="parameters" element="tns:GetEmploymentDataRequest" />
+    </wsdl:message>
+
+    <!-- Message: Response -->
+    <wsdl:message name="GetEmploymentDataResponseMessage">
+        <wsdl:part name="data" element="tns:GetEmploymentDataResponse" />
+        </wsdl:message>
+
+    <wsdl:portType name="GetEmploymentDataPort">
+        <wsdl:operation name="GetEmploymentData">
+            <wsdl:input message="tns:GetEmploymentDataRequestMessage" />
+            <wsdl:output message="tns:GetEmploymentDataResponseMessage" />
+        </wsdl:operation>
+    </wsdl:portType>
+
+    <wsdl:binding name="EmploymentDataBinding" type="tns:GetEmploymentDataPort">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+        <wsdl:operation name="GetEmploymentData">
+            <soap:operation soapAction="http://localhost/wsdl/GetEmploymentData" />
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+
+    <wsdl:service name="EmploymentDataService">
+        <wsdl:port name="EmploymentDataPort" binding="tns:EmploymentDataBinding">
+            <soap:address location="http://localhost:8000/wsdl" />
+        </wsdl:port>
+    </wsdl:service>
+
+</wsdl:definitions>
