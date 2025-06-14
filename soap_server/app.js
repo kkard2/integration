@@ -1,6 +1,7 @@
 import soap from 'soap'
 import http from 'http'
 import fs from 'fs/promises'
+import cors from 'cors'
 import sequelize from './db.js'
 import Employment from './models/Models.js'
 import GetEmploymentData from './services/GetEmploymentDataService.js'
@@ -32,6 +33,16 @@ const SoapService = {
 }
 
 const server = http.createServer((req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, GET');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        res.writeHead(200);
+        res.end();
+        return;
+    }
+
     res.statusCode = 404
     res.end()
 })

@@ -3,7 +3,7 @@ import '../App.css'
 import {useNavigate} from 'react-router-dom';
 import {DEFAULT_URL} from '../constants'
 import {useAuth} from '../AuthContext';
-import {CartesianGrid, Text, Line, LineChart, Tooltip, XAxis, YAxis} from 'recharts';
+import {CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis} from 'recharts';
 import Navbar from "./Navbar.jsx";
 
 export default function HomePage() {
@@ -14,6 +14,7 @@ export default function HomePage() {
     const [yearEnd, setYearEnd] = useState(2025)
     const [errors, setErrors] = useState("")
     const [alcoholData, setAlcoholData] = useState([])
+    const [employmentData, setEmploymentData] = useState([])
     const [message, setMessage] = useState("")
 
 
@@ -40,6 +41,7 @@ export default function HomePage() {
                 setErrors("Fetch countries error")
             }
         }
+
         fetchCountries()
     }, [])
 
@@ -98,6 +100,31 @@ export default function HomePage() {
         }
     }
 
+    const fetchSoapData = async () => {
+        const query = new URLSearchParams({
+            country,
+            yearBegin,
+            yearEnd
+        }).toString();
+
+        const res = await fetch(`${DEFAULT_URL}/api/data/employment?${query}`, {
+            method: 'GET',
+                headers: {
+                'Authorization': `Bearer ${auth.user.token}`
+            }
+        })
+
+        const data = await res.json()
+
+        if (!res.ok) {
+            const error = data
+            throw new Error(error.error || 'Błąd podczas pobierania danych')
+        }
+
+        setEmploymentData(data)
+        console.log(data.result)
+    }
+
     return (
         <div>
             <Navbar/>
@@ -127,7 +154,7 @@ export default function HomePage() {
 
                 {errors && <div className='error'>{errors}</div>}
 
-                {alcoholData.length > 0 && (
+                {alcoholData.length > 0 && !errors && (
                     <div>
                         <h3>Wykres dla {country}</h3>
                         <div className="chart-wrapper">
@@ -151,12 +178,14 @@ export default function HomePage() {
                         </div>
                     </div>
                 )}
-                {alcoholData.length > 0 && (
+                {alcoholData.length > 0 && !errors && (
                     <div>
                         <button onClick={handleButtonClick} className='submit-button'>Zapisz</button>
                         {message && <div className='message'>{message}</div>}
                     </div>
                 )}
+                <button onClick={fetchSoapData}>SOAP</button>
+                {employmentData && (JSON.stringify(employmentData, null, 2))}
             </div>
         </div>
     )
