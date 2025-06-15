@@ -35,7 +35,7 @@ export default function Saved() {
         };
 
         fetchSavedSummaries();
-    }, [savedSummaries]);
+    }, []);
 
     const fetchChartData = async (summary) => {
         const country = summary.countryCode;
@@ -48,31 +48,56 @@ export default function Saved() {
                 yearBegin,
                 yearEnd
             }).toString();
-            const response = await fetch(`${DEFAULT_URL}/api/data/consumption?${query}`, {
+
+            const alcoholResponse = await fetch(`${DEFAULT_URL}/api/data/consumption?${query}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${auth.user.token}`
                 },
             });
-            const data = await response.json();
 
-            if (response.ok) {
-                const formattedData = data.map(item => ({
-                    year: item.year.toString(),
-                    value: parseFloat(item.value)
-                }));
-                setChartData(prev => ({
-                    ...prev,
-                    [summary.id]: formattedData
-                }));
-            } else {
-                setError("Błąd pobierania danych do wykresu");
-            }
+            const alcoholJson = await alcoholResponse.json();
+            if (!alcoholResponse.ok) throw new Error("Błąd danych alkoholu");
+
+            const alcoholData = alcoholJson;
+
+            const soapResponse = await fetch(`${DEFAULT_URL}/api/data/employment?${query}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${auth.user.token}`
+                }
+            });
+
+            const soapJson = await soapResponse.json();
+            if (!soapResponse.ok) throw new Error("Błąd danych SOAP");
+
+            const employmentRaw = soapJson.result[0].record;
+            const employmentData = employmentRaw.map(item => {
+                return {
+                    year: item.year,
+                    ratio: item.ratio
+                };
+            });
+
+            const merged = alcoholData.map(a => {
+                const match = employmentData.find(e => e.year === a.year);
+                return {
+                    year: a.year,
+                    value: a.value,
+                    ratio: match ? match.ratio : null
+                };
+            });
+
+            setChartData(prevData => ({
+                ...prevData,
+                [summary.id]: merged
+            }));
         } catch (error) {
-            console.log("Błąd pobierania:", error);
-            setError("Błąd podczas pobierania danych");
+            console.error("fetchChartData error:", error);
+            setError("Błąd podczas pobierania danych do wykresu");
         }
     };
+
 
     const handleSummaryClick = async (summary) => {
         const newExpandedId = expandedId === summary.id ? null : summary.id;
@@ -141,20 +166,12 @@ export default function Saved() {
                                 <LineChart width={700} height={350} data={chartData[s.id]}
                                            margin={{top: 5, right: 20, bottom: 25, left: 25}}>
                                     <CartesianGrid stroke="#ccc"/>
-                                    <XAxis dataKey="year" label={{
-                                        value: 'Rok',
-                                        position: 'bottom',
-                                        offset: 0
-                                    }}/>
-                                    <YAxis label={{
-                                        value: 'Spożyty alkohol w L (per capita)',
-                                        angle: -90,
-                                        dx: -20
-                                    }}
-                                    />
+                                    <XAxis dataKey="year" label={{ value: 'Rok', position: 'bottom', offset: 0 }}/>
+                                    <YAxis label={{ value: '', angle: -90, dx: -20 }}/>
                                     <Tooltip/>
-                                    <Line type="monotone" dataKey="value" stroke="#2a6df4" strokeWidth={2}
-                                          dot={{r: 3}}/>
+                                    <Legend verticalAlign="top" height={36}/>
+                                    <Line type="monotone" dataKey="value" name="Spożyty alkohol (per capita) w L" stroke="#2a6df4" strokeWidth={2} dot={{ r: 3 }}/>
+                                    <Line type="monotone" dataKey="ratio" name="Procent zatrudnienia" stroke="#f47c2a" strokeWidth={2} dot={{ r: 3 }}/>
                                 </LineChart>
                             </div>
                         )}

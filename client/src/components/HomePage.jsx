@@ -11,7 +11,7 @@ export default function HomePage() {
     const [countries, setCountries] = useState([])
     const [country, setCountry] = useState("POL")
     const [yearBegin, setYearBegin] = useState(2000)
-    const [yearEnd, setYearEnd] = useState(2025)
+    const [yearEnd, setYearEnd] = useState(2020)
     const [errors, setErrors] = useState("")
     const [alcoholData, setAlcoholData] = useState([])
     const [employmentData, setEmploymentData] = useState([])
@@ -91,10 +91,10 @@ export default function HomePage() {
             if (!response.ok) {
                 const error = data
                 throw new Error(error.error || 'Błąd podczas pobierania danych')
+            } else {
+                setEmploymentData(data.result[0].record)
+                console.log(data)
             }
-
-            setEmploymentData(data.result[0].record)
-            console.log(data)
         } catch (error) {
             console.log("Submit error: ", error)
             setErrors("Fetch data error")
@@ -128,31 +128,6 @@ export default function HomePage() {
             console.log("Save search error: ", error)
         }
     }
-
-    // const fetchSoapData = async () => {
-    //     const query = new URLSearchParams({
-    //         country,
-    //         yearBegin,
-    //         yearEnd
-    //     }).toString();
-    //
-    //     const response = await fetch(`${DEFAULT_URL}/api/data/employment?${query}`, {
-    //         method: 'GET',
-    //             headers: {
-    //             'Authorization': `Bearer ${auth.user.token}`
-    //         }
-    //     })
-    //
-    //     const data = await response.json()
-    //
-    //     if (!response.ok) {
-    //         const error = data
-    //         throw new Error(error.error || 'Błąd podczas pobierania danych')
-    //     }
-    //
-    //     setEmploymentData(data.result[0].record)
-    //     console.log(data)
-    // }
 
     useEffect(() => {
         if (alcoholData.length > 0 && employmentData.length > 0) {
