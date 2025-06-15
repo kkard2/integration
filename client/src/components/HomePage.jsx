@@ -163,6 +163,26 @@ export default function HomePage() {
         }
     }, [alcoholData, employmentData]);
 
+    const handleExport = () => {
+        if (mergedData.length === 0) return;
+
+        const dataToExport = {
+            country,
+            data: mergedData.map(item => ({
+                year: item.year,
+                value: item.value,
+                ratio: item.ratio
+            }))
+        };
+
+        const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${country}_data_${yearBegin}_${yearEnd}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
 
     return (
         <div>
@@ -198,23 +218,30 @@ export default function HomePage() {
                         <h3>Wykres dla {country}</h3>
                         <div className="chart-wrapper">
                             <LineChart width={700} height={350} data={mergedData}
-                                       margin={{ top: 5, right: 20, bottom: 25, left: 25 }}>
-                                <CartesianGrid stroke="#ccc" />
-                                <XAxis dataKey="year" label={{ value: 'Rok', position: 'bottom', offset: 0 }} />
-                                <YAxis label={{ value: '', angle: -90, dx: -20 }} />
-                                <Tooltip />
-                                <Legend verticalAlign="top" height={36} />
-                                <Line type="monotone" dataKey="value" name="Spożyty alkohol (per capita) w L" stroke="#2a6df4" strokeWidth={2} dot={{ r: 3 }} />
-                                <Line type="monotone" dataKey="ratio" name="Procent zatrudnienia" stroke="#f47c2a" strokeWidth={2} dot={{ r: 3 }} />
+                                       margin={{top: 5, right: 20, bottom: 25, left: 25}}>
+                                <CartesianGrid stroke="#ccc"/>
+                                <XAxis dataKey="year" label={{value: 'Rok', position: 'bottom', offset: 0}}/>
+                                <YAxis label={{value: '', angle: -90, dx: -20}}/>
+                                <Tooltip/>
+                                <Legend verticalAlign="top" height={36}/>
+                                <Line type="monotone" dataKey="value" name="Spożyty alkohol (per capita) w L"
+                                      stroke="#2a6df4" strokeWidth={2} dot={{r: 3}}/>
+                                <Line type="monotone" dataKey="ratio" name="Procent zatrudnienia" stroke="#f47c2a"
+                                      strokeWidth={2} dot={{r: 3}}/>
                             </LineChart>
                         </div>
                     </div>
                 )}
 
                 {alcoholData.length > 0 && !errors && (
-                    <div>
-                        <button onClick={handleButtonClick} className='submit-button'>Zapisz</button>
-                        {message && <div className='message'>{message}</div>}
+                    <div className='buttons-wrapper'>
+                        <div>
+                            <button onClick={handleButtonClick} className='submit-button'>Zapisz</button>
+                            {message && <div className='message'>{message}</div>}
+                        </div>
+                        <div>
+                            <button onClick={handleExport} className='submit-button'>Eksport do JSON</button>
+                        </div>
                     </div>
                 )}
                 {/*<button onClick={fetchSoapData}>SOAP</button>*/}

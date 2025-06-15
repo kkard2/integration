@@ -11,6 +11,7 @@ export default function Navbar() {
             <ul className="navbar-links">
                 <li><NavLink to="/home" className="nav-link">Home</NavLink></li>
                 <li><NavLink to="/saved" className="nav-link">Zapisane</NavLink></li>
+                <li><NavLink to="/import-json" className="nav-link">Import JSON</NavLink></li>
             </ul>
             <div>
                 <button className="logout-button" onClick={auth.logout}>Logout</button>
