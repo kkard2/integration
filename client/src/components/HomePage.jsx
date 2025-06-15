@@ -3,7 +3,7 @@ import '../App.css'
 import {useNavigate} from 'react-router-dom';
 import {DEFAULT_URL} from '../constants'
 import {useAuth} from '../AuthContext';
-import {CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis} from 'recharts';
+import {CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis} from 'recharts';
 import Navbar from "./Navbar.jsx";
 
 export default function HomePage() {
@@ -16,6 +16,7 @@ export default function HomePage() {
     const [alcoholData, setAlcoholData] = useState([])
     const [employmentData, setEmploymentData] = useState([])
     const [message, setMessage] = useState("")
+    const [mergedData, setMergedData] = useState([])
 
 
     const navigate = useNavigate();
@@ -70,6 +71,34 @@ export default function HomePage() {
         } catch (error) {
             console.log("Submit error: ", error)
         }
+
+        try {
+            const query = new URLSearchParams({
+                country,
+                yearBegin,
+                yearEnd
+            }).toString();
+
+            const response = await fetch(`${DEFAULT_URL}/api/data/employment?${query}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${auth.user.token}`
+                }
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                const error = data
+                throw new Error(error.error || 'Błąd podczas pobierania danych')
+            }
+
+            setEmploymentData(data.result[0].record)
+            console.log(data)
+        } catch (error) {
+            console.log("Submit error: ", error)
+            setErrors("Fetch data error")
+        }
     }
 
     const handleButtonClick = async () => {
@@ -100,30 +129,45 @@ export default function HomePage() {
         }
     }
 
-    const fetchSoapData = async () => {
-        const query = new URLSearchParams({
-            country,
-            yearBegin,
-            yearEnd
-        }).toString();
+    // const fetchSoapData = async () => {
+    //     const query = new URLSearchParams({
+    //         country,
+    //         yearBegin,
+    //         yearEnd
+    //     }).toString();
+    //
+    //     const response = await fetch(`${DEFAULT_URL}/api/data/employment?${query}`, {
+    //         method: 'GET',
+    //             headers: {
+    //             'Authorization': `Bearer ${auth.user.token}`
+    //         }
+    //     })
+    //
+    //     const data = await response.json()
+    //
+    //     if (!response.ok) {
+    //         const error = data
+    //         throw new Error(error.error || 'Błąd podczas pobierania danych')
+    //     }
+    //
+    //     setEmploymentData(data.result[0].record)
+    //     console.log(data)
+    // }
 
-        const res = await fetch(`${DEFAULT_URL}/api/data/employment?${query}`, {
-            method: 'GET',
-                headers: {
-                'Authorization': `Bearer ${auth.user.token}`
-            }
-        })
-
-        const data = await res.json()
-
-        if (!res.ok) {
-            const error = data
-            throw new Error(error.error || 'Błąd podczas pobierania danych')
+    useEffect(() => {
+        if (alcoholData.length > 0 && employmentData.length > 0) {
+            const merged = alcoholData.map(entry => {
+                const match = employmentData.find(e => e.year === entry.year);
+                return {
+                    year: entry.year,
+                    value: entry.value,
+                    ratio: match ? match.ratio : null,
+                };
+            });
+            setMergedData(merged);
         }
+    }, [alcoholData, employmentData]);
 
-        setEmploymentData(data)
-        console.log(data.result)
-    }
 
     return (
         <div>
@@ -158,34 +202,27 @@ export default function HomePage() {
                     <div>
                         <h3>Wykres dla {country}</h3>
                         <div className="chart-wrapper">
-                            <LineChart width={700} height={350} data={alcoholData}
-                                       margin={{top: 5, right: 20, bottom: 25, left: 25}}>
-                                <CartesianGrid stroke="#ccc"/>
-                                <XAxis dataKey="year" label={{
-                                    value: 'Rok',
-                                    position: 'bottom',
-                                    offset: 0
-                                }}/>
-                                <YAxis label={{
-                                    value: 'Spożyty alkohol w L (per capita)',
-                                    angle: -90,
-                                    dx: -20
-                                }}
-                                />
-                                <Tooltip/>
-                                <Line type="monotone" dataKey="value" stroke="#2a6df4" strokeWidth={2} dot={{r: 3}}/>
+                            <LineChart width={700} height={350} data={mergedData}
+                                       margin={{ top: 5, right: 20, bottom: 25, left: 25 }}>
+                                <CartesianGrid stroke="#ccc" />
+                                <XAxis dataKey="year" label={{ value: 'Rok', position: 'bottom', offset: 0 }} />
+                                <YAxis label={{ value: '', angle: -90, dx: -20 }} />
+                                <Tooltip />
+                                <Legend verticalAlign="top" height={36} />
+                                <Line type="monotone" dataKey="value" name="Spożyty alkohol (per capita) w L" stroke="#2a6df4" strokeWidth={2} dot={{ r: 3 }} />
+                                <Line type="monotone" dataKey="ratio" name="Procent zatrudnienia" stroke="#f47c2a" strokeWidth={2} dot={{ r: 3 }} />
                             </LineChart>
                         </div>
                     </div>
                 )}
+
                 {alcoholData.length > 0 && !errors && (
                     <div>
                         <button onClick={handleButtonClick} className='submit-button'>Zapisz</button>
                         {message && <div className='message'>{message}</div>}
                     </div>
                 )}
-                <button onClick={fetchSoapData}>SOAP</button>
-                {employmentData && (JSON.stringify(employmentData, null, 2))}
+                {/*<button onClick={fetchSoapData}>SOAP</button>*/}
             </div>
         </div>
     )

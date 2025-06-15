@@ -5,6 +5,7 @@ const SOAP_URL='http://localhost:8000/wsdl?wsdl'
 
 export const getEmploymentData = async (req, res) => {
     const { country, yearBegin, yearEnd } = req.query
+    const userId = req.user.id
 
     let countryCode = country
     let startYear = yearBegin
@@ -13,6 +14,13 @@ export const getEmploymentData = async (req, res) => {
     if(!country || !yearBegin || !yearEnd) {
         return res.status(400).json({
             error: 'Pola nie mogą być puste'
+        })
+    }
+
+    if(!userId) {
+        return res.status(401).json({
+            success: false,
+            message: "Dostep zabroniony"
         })
     }
 
