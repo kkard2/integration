@@ -13,27 +13,27 @@ export default function Saved() {
     const [chartData, setChartData] = useState({});
     const [message, setMessage] = useState("");
 
-    useEffect(() => {
-        const fetchSavedSummaries = async () => {
-            try {
-                const response = await fetch(`${DEFAULT_URL}/api/summary/saved`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${auth.user.token}`
-                    }
-                });
-
-                const data = await response.json();
-                if (response.ok) {
-                    setError("");
-                    setSavedSummaries(data.data.summaries);
+    const fetchSavedSummaries = async () => {
+        try {
+            const response = await fetch(`${DEFAULT_URL}/api/summary/saved`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${auth.user.token}`
                 }
-            } catch (error) {
-                console.log(error);
-                setError("Błąd pobierania zapisanych summary");
-            }
-        };
+            });
 
+            const data = await response.json();
+            if (response.ok) {
+                setError("");
+                setSavedSummaries(data.data.summaries);
+            }
+        } catch (error) {
+            console.log(error);
+            setError("Błąd pobierania zapisanych summary");
+        }
+    };
+
+    useEffect(() => {
         fetchSavedSummaries();
     }, []);
 
@@ -116,7 +116,7 @@ export default function Saved() {
             console.log(data)
 
             if (data.success) {
-                setSavedSummaries(prevSummaries => prevSummaries.filter(summary => summary.id !== id));
+                await fetchSavedSummaries();
                 setMessage("Pomyślnie usunięto");
             } else {
                 setError(data.message || "Błąd podczas usuwania");

@@ -119,6 +119,10 @@ export const deleteSummary = async (req, res) => {
     try {
         await summary.destroy({transaction: t})
         await t.commit()
+        return res.status(200).json({
+            success: true,
+            message: "Usunięto pomyślnie"
+        })
     } catch (error) {
         await t.rollback()
         console.log("Summary error: ", error)
