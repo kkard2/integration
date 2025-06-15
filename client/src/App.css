@@ -262,3 +262,16 @@
     flex-direction: column;
     gap: 10px;
 }
+
+.format-info {
+    margin-bottom: 15px;
+}
+
+.format-info .key {
+    color: #9e1919;
+    font-weight: bold;
+}
+
+.format-info .value {
+    color: #228022;
+}
