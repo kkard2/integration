@@ -1,7 +1,6 @@
 import {useEffect, useState} from 'react'
 import '../App.css'
 import {useNavigate} from 'react-router-dom';
-import {DEFAULT_URL} from '../constants'
 import {useAuth} from '../AuthContext';
 import {CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis} from 'recharts';
 import Navbar from "./Navbar.jsx";
@@ -17,6 +16,7 @@ export default function HomePage() {
     const [employmentData, setEmploymentData] = useState([])
     const [message, setMessage] = useState("")
     const [mergedData, setMergedData] = useState([])
+    const API_URL = import.meta.env.VITE_API_URL;
 
 
     const navigate = useNavigate();
@@ -25,7 +25,7 @@ export default function HomePage() {
         const fetchCountries = async () => {
             setErrors("")
             try {
-                const response = await fetch(`${DEFAULT_URL}/api/data/countries`, {
+                const response = await fetch(`${API_URL}/api/data/countries`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${auth.user.token}`
@@ -76,7 +76,7 @@ export default function HomePage() {
                 yearBegin,
                 yearEnd
             }).toString();
-            const response = await fetch(`${DEFAULT_URL}/api/data/consumption?${query}`, {
+            const response = await fetch(`${API_URL}/api/data/consumption?${query}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${auth.user.token}`
@@ -99,7 +99,7 @@ export default function HomePage() {
                 yearEnd
             }).toString();
 
-            const response = await fetch(`${DEFAULT_URL}/api/data/employment?${query}`, {
+            const response = await fetch(`${API_URL}/api/data/employment?${query}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${auth.user.token}`
@@ -123,7 +123,7 @@ export default function HomePage() {
 
     const handleButtonClick = async () => {
         try {
-            const response = await fetch(`${DEFAULT_URL}/api/summary/save`, {
+            const response = await fetch(`${API_URL}/api/summary/save`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

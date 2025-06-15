@@ -1,7 +1,7 @@
 import sequelize from "../db.js"
 import soap from 'soap'
 
-const SOAP_URL='http://localhost:8000/wsdl?wsdl'
+const SOAP_URL=`${process.env.SOAP_URL}/wsdl?wsdl`
 
 export const getEmploymentData = async (req, res) => {
     const { country, yearBegin, yearEnd } = req.query

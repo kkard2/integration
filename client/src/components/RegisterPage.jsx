@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import '../App.css';
 import { Link, useNavigate } from 'react-router-dom';
-import { DEFAULT_URL } from '../constants';
 
 export default function RegisterPage() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
+    const API_URL = import.meta.env.VITE_API_URL;
 
     const navigate = useNavigate();
 
@@ -18,7 +18,7 @@ export default function RegisterPage() {
             return;
         }
 
-        const response = await fetch(`${DEFAULT_URL}/api/auth/register`, {
+        const response = await fetch(`${API_URL}/api/auth/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

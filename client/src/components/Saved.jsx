@@ -1,7 +1,6 @@
 import Navbar from "./Navbar.jsx";
 import {useAuth} from "../AuthContext.jsx";
 import {useEffect, useState} from "react";
-import {DEFAULT_URL} from "../constants.js";
 import {Trash2} from 'lucide-react'
 import {LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line} from 'recharts';
 
@@ -12,10 +11,11 @@ export default function Saved() {
     const [expandedId, setExpandedId] = useState(null);
     const [chartData, setChartData] = useState({});
     const [message, setMessage] = useState("");
+    const API_URL = import.meta.env.VITE_API_URL;
 
     const fetchSavedSummaries = async () => {
         try {
-            const response = await fetch(`${DEFAULT_URL}/api/summary/saved`, {
+            const response = await fetch(`${API_URL}/api/summary/saved`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${auth.user.token}`
@@ -49,7 +49,7 @@ export default function Saved() {
                 yearEnd
             }).toString();
 
-            const alcoholResponse = await fetch(`${DEFAULT_URL}/api/data/consumption?${query}`, {
+            const alcoholResponse = await fetch(`${API_URL}/api/data/consumption?${query}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${auth.user.token}`
@@ -61,7 +61,7 @@ export default function Saved() {
 
             const alcoholData = alcoholJson;
 
-            const employmentResponse = await fetch(`${DEFAULT_URL}/api/data/employment?${query}`, {
+            const employmentResponse = await fetch(`${API_URL}/api/data/employment?${query}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${auth.user.token}`
@@ -104,7 +104,7 @@ export default function Saved() {
 
     const handleDelete = async (id) => {
         try {
-            const response = await fetch(`${DEFAULT_URL}/api/summary/delete/${id}`, {
+            const response = await fetch(`${API_URL}/api/summary/delete/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${auth.user.token}`

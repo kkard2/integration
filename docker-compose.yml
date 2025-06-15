@@ -1,18 +1,60 @@
-version: '3.8'
-
 services:
   integration-db:
     image: mysql:8
     container_name: integration-db
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    env_file:
+      - ./.env
     ports:
       - "3306:3306"
     volumes:
       - integration-data:/var/lib/mysql
+
+  backend:
+    build: ./server/
+    env_file:
+      - ./server/.env
+    ports:
+      - "3000:3000"
+    depends_on:
+      - soap
+    restart: always
+    healthcheck:
+      test: [ "CMD", "ping", "-c", "1", "soap" ]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+
+  frontend:
+    build: ./client/
+    env_file:
+      - ./client/.env
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    restart: on-failure
+    healthcheck:
+      test: [ "CMD", "ping", "-c", "1", "backend" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  soap:
+    build: ./soap_server/
+    env_file:
+      - ./soap_server/.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - integration-db
+    restart: on-failure
+    healthcheck:
+      test: [ "CMD", "ping", "-c", "1", "integration-db" ]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
 
 volumes:
   integration-data:

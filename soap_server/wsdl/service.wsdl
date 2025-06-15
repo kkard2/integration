@@ -68,7 +68,7 @@
 
     <wsdl:service name="EmploymentDataService">
         <wsdl:port name="EmploymentDataPort" binding="tns:EmploymentDataBinding">
-            <soap:address location="http://localhost:8000/wsdl" />
+            <soap:address location="http://soap:8000/wsdl" />
         </wsdl:port>
     </wsdl:service>
 

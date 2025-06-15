@@ -1,7 +1,6 @@
 import { useContext, useState } from 'react'
 import '../App.css'
 import { Link, useNavigate } from 'react-router-dom';
-import { DEFAULT_URL } from '../constants'
 import { useAuth } from '../AuthContext';
 
 export default function LoginPage() {
@@ -10,10 +9,11 @@ export default function LoginPage() {
     const [errors, setErrors] = useState("")
     const navigate = useNavigate();
     const auth = useAuth();
+    const API_URL = import.meta.env.VITE_API_URL;
 
     async function submit(e) {
         e.preventDefault();
-        const response = await fetch(`${DEFAULT_URL}/api/auth/login`, {
+        const response = await fetch(`${API_URL}/api/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
