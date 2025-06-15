@@ -1,13 +1,4 @@
-/*
-IN:
-    -> COUNTRY
-    -> YEAR_BEGIN
-    -> YEAR_END
-
-OUT:
-    <- VALUE
-*/
-
+import { Transaction } from "sequelize"
 import sequelize from "../db.js"
 import { Country } from "../models/Models.js"
 
@@ -68,13 +59,14 @@ export const getCountries = async (_, res) => {
 
             console.log(countries)
 
-            const t = await sequelize.transaction()
+            const t = await sequelize.transaction({ isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE })
 
             try {
-                await Country.destroy({ where: {} })
+                await Country.destroy({ where: {}, transaction: t })
                 await Country.bulkCreate(countries, { transaction: t})
                 await t.commit()
             } catch (err) {
+                await t.rollback()
                 console.error(err)
                 return res.status(500).json({ message: "Loading countries to database unsuccessful" })
             }

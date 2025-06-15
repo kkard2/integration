@@ -112,7 +112,7 @@ export default function HomePage() {
                 const error = data
                 throw new Error(error.error || 'Błąd podczas pobierania danych')
             } else {
-                setEmploymentData(sanitizeEmploymentData(data.result[0].record))
+                setEmploymentData(data.sanitized)
                 console.log(data)
             }
         } catch (error) {

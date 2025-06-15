@@ -26,15 +26,27 @@ export const getEmploymentData = async (req, res) => {
 
     try{
         const client = await soap.createClientAsync(SOAP_URL)
-        const result = await client.GetEmploymentDataAsync({
+        const [result] = await client.GetEmploymentDataAsync({
             countryCode,
             startYear,
             endYear,
-            }
-        )
+        })
+
+        let records = result?.record || []
+
+        if (!Array.isArray(records)) {
+            records = [records]
+        }
+
+        const sanitized = records.map(r => ({
+            year: r.year,
+            ratio: typeof r.ratio === 'object' ? null : r.ratio
+        }))
+
+        console.log(sanitized)
 
         res.status(200).json({
-            result
+            sanitized
         })
     } catch (error) {
         console.error("SOAP call failed:", error)

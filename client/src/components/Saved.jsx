@@ -61,33 +61,17 @@ export default function Saved() {
 
             const alcoholData = alcoholJson;
 
-            const soapResponse = await fetch(`${DEFAULT_URL}/api/data/employment?${query}`, {
+            const employmentResponse = await fetch(`${DEFAULT_URL}/api/data/employment?${query}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${auth.user.token}`
                 }
             });
 
-            const soapJson = await soapResponse.json();
-            if (!soapResponse.ok) throw new Error("Błąd danych SOAP");
+            if (!employmentResponse.ok) throw new Error("Błąd danych SOAP");
 
-            const employmentRaw = soapJson.result[0].record;
-            const employmentData = employmentRaw.map(item => {
-                let ratio = item.ratio;
-
-                // Jeśli ratio zawiera xsi:nil -> null
-                if (
-                    ratio.attributes &&
-                    ratio.attributes["xsi:nil"] === "true"
-                ) {
-                    ratio = null;
-                }
-
-                return {
-                    year: item.year,
-                    ratio: ratio
-                };
-            });
+            const employmentJson = await employmentResponse.json()
+            const employmentData = employmentJson.sanitized
 
             const merged = alcoholData.map(a => {
                 const match = employmentData.find(e => e.year === a.year);
@@ -129,6 +113,8 @@ export default function Saved() {
 
             const data = await response.json();
 
+            console.log(data)
+
             if (data.success) {
                 setSavedSummaries(prevSummaries => prevSummaries.filter(summary => summary.id !== id));
                 setMessage("Pomyślnie usunięto");
@@ -163,7 +149,10 @@ export default function Saved() {
                             <div>
                                 <div className="saved-summary-years">{s.startYear} - {s.endYear}</div>
                                 <button
-                                    onClick={() => handleDelete(s.id)}
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleDelete(s.id)}
+                                    }
                                     className="delete-button"
                                     title="Usuń"
                                 >
