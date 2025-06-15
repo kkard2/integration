@@ -73,9 +73,19 @@ export default function Saved() {
 
             const employmentRaw = soapJson.result[0].record;
             const employmentData = employmentRaw.map(item => {
+                let ratio = item.ratio;
+
+                // Jeśli ratio zawiera xsi:nil -> null
+                if (
+                    ratio.attributes &&
+                    ratio.attributes["xsi:nil"] === "true"
+                ) {
+                    ratio = null;
+                }
+
                 return {
                     year: item.year,
-                    ratio: item.ratio
+                    ratio: ratio
                 };
             });
 

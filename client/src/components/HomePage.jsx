@@ -46,6 +46,26 @@ export default function HomePage() {
         fetchCountries()
     }, [])
 
+    function sanitizeEmploymentData(rawEmploymentData) {
+        return rawEmploymentData.map(item => {
+            let ratio = item.ratio;
+
+            // Jeśli ratio zawiera xsi:nil -> null
+            if (
+                ratio.attributes &&
+                ratio.attributes["xsi:nil"] === "true"
+            ) {
+                ratio = null;
+            }
+
+            return {
+                year: item.year,
+                ratio,
+            };
+        });
+    }
+
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         setErrors("")
@@ -92,7 +112,7 @@ export default function HomePage() {
                 const error = data
                 throw new Error(error.error || 'Błąd podczas pobierania danych')
             } else {
-                setEmploymentData(data.result[0].record)
+                setEmploymentData(sanitizeEmploymentData(data.result[0].record))
                 console.log(data)
             }
         } catch (error) {
